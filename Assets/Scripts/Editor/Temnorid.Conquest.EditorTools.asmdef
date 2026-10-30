@@ -1,0 +1,27 @@
+{
+  "name": "Temnorid.Conquest.EditorTools",
+  "rootNamespace": "Temnorid.Conquest.EditorTools",
+  "references": [
+    "Temnorid.Conquest",
+    "Unity.AI.Navigation",
+    "ITKamianets.Engine.Character",
+    "ITKamianets.Engine.CharacterView.Camera",
+    "ITKamianets.Engine.CharacterView.Controls",
+    "ITKamianets.Engine.Combat",
+    "ITKamianets.Engine.AI",
+    "ITKamianets.Engine.Feedback",
+    "ITKamianets.Engine.Graybox",
+    "ITKamianets.Engine.Graybox.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

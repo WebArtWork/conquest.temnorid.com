@@ -1,0 +1,20 @@
+{
+  "name": "Temnorid.Conquest.Tests.PlayMode",
+  "rootNamespace": "Temnorid.Conquest.Tests",
+  "references": [
+    "Temnorid.Conquest",
+    "ITKamianets.Engine.Combat",
+    "ITKamianets.Engine.AI",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll"],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

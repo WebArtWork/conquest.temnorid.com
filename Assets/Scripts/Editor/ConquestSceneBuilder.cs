@@ -5,6 +5,7 @@ using ITKamianets.Engine.AI;
 using ITKamianets.Engine.Character;
 using ITKamianets.Engine.CharacterView;
 using ITKamianets.Engine.Combat;
+using ITKamianets.Engine.Shell.Editor;
 using Unity.AI.Navigation;
 using UnityEditor;
 using UnityEditor.Build;
@@ -35,9 +36,7 @@ namespace Temnorid.Conquest.EditorTools
 		[MenuItem("Temnorid/Conquest/Build Scene")]
 		public static void Build()
 		{
-			PlayerSettings.productName = "Temnorid Conquest";
-			PlayerSettings.companyName = "Temnorid";
-			PlayerSettings.bundleVersion = "0.1.0";
+			ShellSceneKit.ApplyPlatformSettings("Temnorid", "Temnorid Conquest", "com.itkamianets.conquest", "0.2.0");
 			PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, "com.itkamianets.conquest");
 			PlayerSettings.runInBackground = true;
 			PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
@@ -65,7 +64,9 @@ namespace Temnorid.Conquest.EditorTools
 			hud.Lord = player.GetComponent<PlayerLord>();
 
 			EditorSceneManager.SaveScene(scene, ScenePath);
-			EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
+			ShellSceneKit.BuildBoot();
+			ShellSceneKit.BuildMenu();
+			ShellSceneKit.SetBuildOrder(ScenePath); // Boot, Menu, then the assault
 			AssetDatabase.SaveAssets();
 			Debug.Log("[Conquest] Scene built: " + ScenePath + " (" + soldiers.Length + " defenders)");
 		}

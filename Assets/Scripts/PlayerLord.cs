@@ -11,6 +11,10 @@ namespace Temnorid.Conquest
 	/// The player's Lord in a fight: a sword swing on the main action (left mouse) and the Charge on the second
 	/// (right mouse): a short rush forward that hits everyone it runs into. The hits come from the shared combat
 	/// package; this class chooses the numbers and draws the swing and the rush.
+	/// <para>
+	/// Online, on a machine that is not the host the defenders are only pictures: a blow that lands on one is reported to the
+	/// host (<see cref="ConquestNet.RequestHit"/>) and the host decides. On the host and alone, a blow hurts directly.
+	/// </para>
 	/// </summary>
 	[RequireComponent(typeof(Health), typeof(CharacterController))]
 	public sealed class PlayerLord : MonoBehaviour
@@ -36,6 +40,9 @@ namespace Temnorid.Conquest
 		public float ChargeReady => Mathf.Clamp01(1f - (_nextCharge - Time.time) / ChargeCooldown);
 
 		public bool IsCharging { get; private set; }
+
+		/// <summary>Counts every swing, so other machines can show each one.</summary>
+		public int SwingCount { get; private set; }
 
 		CharacterController _controller;
 		float _nextAttack;
@@ -84,12 +91,21 @@ namespace Temnorid.Conquest
 			return forward.sqrMagnitude > 0.001f ? forward.normalized : transform.forward;
 		}
 
+		bool ReportsToHost => Game != null && Game.Net != null && Game.Net.IsClient;
+
 		void Swing()
 		{
 			_nextAttack = Time.time + AttackCooldown;
+			SwingCount++;
 			var direction = AimDirection();
 			var origin = transform.position;
-			CombatQueries.DamageInCone(origin, direction, AttackRange, AttackHalfAngle, Health.Team, new DamageInfo(AttackDamage, gameObject, origin, "sword"));
+			var info = new DamageInfo(AttackDamage, gameObject, origin, "sword");
+			if (ReportsToHost)
+			{
+				var targets = new List<Health>(CombatQueries.FindInCone(origin, direction, AttackRange, AttackHalfAngle, Health.Team));
+				foreach (var target in targets) Game.Net.RequestHit(target, AttackDamage, ConquestHit.Sword);
+			}
+			else CombatQueries.DamageInCone(origin, direction, AttackRange, AttackHalfAngle, Health.Team, info);
 
 			Fx.Pulse(PrimitiveType.Cube, origin + Vector3.up * 1.1f + direction * 1.5f, Quaternion.LookRotation(direction) * Quaternion.Euler(0f, 0f, 30f),
 				new Vector3(0.3f, 0.06f, 0.5f), new Vector3(2.8f, 0.06f, 0.5f), new Color(1f, 0.95f, 0.7f), 0.14f);
@@ -115,7 +131,8 @@ namespace Temnorid.Conquest
 				foreach (var target in targets)
 				{
 					if (!hit.Add(target)) continue;
-					target.ApplyDamage(new DamageInfo(ChargeDamage, gameObject, target.transform.position, "charge"));
+					if (ReportsToHost) Game.Net.RequestHit(target, ChargeDamage, ConquestHit.Charge);
+					else target.ApplyDamage(new DamageInfo(ChargeDamage, gameObject, target.transform.position, "charge"));
 				}
 				yield return null;
 			}

@@ -12,7 +12,11 @@
     "UnityEngine.UI",
     "ITKamianets.Engine.Feedback",
     "ITKamianets.Engine.Graybox",
-    "ITKamianets.Engine.UI"
+    "ITKamianets.Engine.UI",
+    "ITKamianets.Engine.Shell",
+    "ITKamianets.Engine.Net",
+    "ITKamianets.Engine.Update",
+    "ITKamianets.Engine.Character"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

@@ -5,6 +5,9 @@
     "Temnorid.Conquest",
     "ITKamianets.Engine.Combat",
     "ITKamianets.Engine.AI",
+    "ITKamianets.Engine.Net",
+    "ITKamianets.Engine.Input",
+    "Unity.InputSystem",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],

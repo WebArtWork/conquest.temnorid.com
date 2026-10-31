@@ -28,7 +28,8 @@ namespace Temnorid.Conquest.EditorTools
 
 			var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
 			{
-				scenes = new[] { ScenePath },
+				// Boot, Menu and the assault: the scenes the scene builder put in the build settings.
+				scenes = Array.ConvertAll(Array.FindAll(EditorBuildSettings.scenes, s => s.enabled), s => s.path),
 				locationPathName = PlayerFolder + "/" + ExeName,
 				target = BuildTarget.StandaloneWindows64,
 				options = BuildOptions.None,

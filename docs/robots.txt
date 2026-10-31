@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://conquest.temnorid.com/sitemap.xml

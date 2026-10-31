@@ -3,6 +3,9 @@
   "rootNamespace": "Temnorid.Conquest.Tests",
   "references": [
     "Temnorid.Conquest",
+    "Temnorid.Village",
+    "ITKamianets.Engine.Shell",
+    "ITKamianets.Engine.Character",
     "ITKamianets.Engine.Combat",
     "ITKamianets.Engine.AI",
     "ITKamianets.Engine.Net",
@@ -15,7 +18,7 @@
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": true,
-  "precompiledReferences": ["nunit.framework.dll"],
+  "precompiledReferences": ["nunit.framework.dll", "Newtonsoft.Json.dll"],
   "autoReferenced": false,
   "defineConstraints": ["UNITY_INCLUDE_TESTS"],
   "versionDefines": [],

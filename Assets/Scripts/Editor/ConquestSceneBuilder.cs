@@ -12,6 +12,7 @@ using UnityEditor.Build;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AI;
+using Temnorid.Village;
 
 namespace Temnorid.Conquest.EditorTools
 {
@@ -26,6 +27,8 @@ namespace Temnorid.Conquest.EditorTools
 	public static class ConquestSceneBuilder
 	{
 		const string ScenePath = "Assets/Scenes/Main.unity";
+		const string VillageScenePath = "Assets/Scenes/Village.unity";
+		public const string Version = "0.3.0";
 		const string MaterialDir = "Assets/Materials";
 
 		// The village is a rectangle behind a wall: x from -24 to 24, z from 0 (the gate) to 48.
@@ -36,7 +39,7 @@ namespace Temnorid.Conquest.EditorTools
 		[MenuItem("Temnorid/Conquest/Build Scene")]
 		public static void Build()
 		{
-			ShellSceneKit.ApplyPlatformSettings("Temnorid", "Temnorid Conquest", "com.itkamianets.conquest", "0.2.0");
+			ShellSceneKit.ApplyPlatformSettings("Temnorid", "Temnorid Conquest", "com.itkamianets.conquest", Version);
 			PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, "com.itkamianets.conquest");
 			PlayerSettings.runInBackground = true;
 			PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
@@ -64,11 +67,49 @@ namespace Temnorid.Conquest.EditorTools
 			hud.Lord = player.GetComponent<PlayerLord>();
 
 			EditorSceneManager.SaveScene(scene, ScenePath);
+			BuildVillageScene();
 			ShellSceneKit.BuildBoot();
 			ShellSceneKit.BuildMenu();
-			ShellSceneKit.SetBuildOrder(ScenePath); // Boot, Menu, then the assault
+			ShellSceneKit.SetBuildOrder(VillageScenePath, ScenePath); // Boot, Menu, the home village, then the assault
 			AssetDatabase.SaveAssets();
 			Debug.Log("[Conquest] Scene built: " + ScenePath + " (" + soldiers.Length + " defenders)");
+		}
+
+		// ---- the home village hub ----
+
+		/// <summary>
+		/// <c>Assets/Scenes/Village.unity</c>: the village view (drawn at run time from the player's Lords save or the standard village),
+		/// a wide safety ground, the hero, the camera and the game objects. The gate is made when the village is drawn.
+		/// </summary>
+		static void BuildVillageScene()
+		{
+			var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+			RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+			RenderSettings.ambientLight = new Color(0.62f, 0.66f, 0.74f);
+
+			var world = new GameObject("World").transform;
+			Prim(PrimitiveType.Cube, "SafetyGround", world, new Vector3(0f, -0.8f, 0f), new Vector3(600f, 1f, 600f), Mat("Grass", new Color(0.33f, 0.55f, 0.28f)), true);
+
+			var view = new GameObject("Village").AddComponent<VillageView>();
+			view.LitTemplate = Mat("VillageLit", Color.white);
+			view.TextMaterial = GrayboxBuilder.WorldTextMaterial(Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"), MaterialDir);
+
+			var hero = BuildPlayer();
+			hero.name = "Hero";
+			Object.DestroyImmediate(hero.GetComponent<PlayerLord>());
+			Object.DestroyImmediate(hero.GetComponent<AiTarget>());
+			Object.DestroyImmediate(hero.GetComponent<Health>());
+			hero.AddComponent<HubHero>();
+			BuildCameraAndLight(hero.GetComponent<CharacterMotor>());
+
+			var gameObject = new GameObject("Game");
+			var game = gameObject.AddComponent<VillageGame>();
+			game.View = view;
+			game.Hero = hero.GetComponent<CharacterMotor>();
+			gameObject.AddComponent<VillageHud>().Game = game;
+
+			EditorSceneManager.SaveScene(scene, VillageScenePath);
+			Debug.Log("[Conquest] Scene built: " + VillageScenePath);
 		}
 
 		// ---- the village ----

@@ -16,7 +16,9 @@
     "ITKamianets.Engine.Shell",
     "ITKamianets.Engine.Net",
     "ITKamianets.Engine.Update",
-    "ITKamianets.Engine.Character"
+    "ITKamianets.Engine.Character",
+    "ITKamianets.Engine.Account",
+    "Temnorid.Village"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

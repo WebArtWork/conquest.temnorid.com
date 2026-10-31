@@ -29,7 +29,7 @@ namespace Temnorid.Conquest
 		Text _health, _charge, _objective, _status, _victoryTitle, _victoryBody, _fallen, _note, _objectivesBody, _hint;
 		Image _healthFill, _chargeFill, _lordFill;
 		GameObject _lordBar, _pause, _victory, _defeat, _objectives, _hudRoot, _touchRoot;
-		Button _victoryAgain, _defeatAgain;
+		Button _victoryAgain, _defeatAgain, _victoryVillage, _defeatVillage;
 		Text _defeatNote;
 		ConquestPhase _shownPhase;
 		float _nextObjectivesRefresh;
@@ -48,6 +48,8 @@ namespace Temnorid.Conquest
 			safe.transform.SetParent(canvas.transform, false);
 
 			_chrome = ShellChrome.Create(transform);
+			// Alone, the village hub is one tap away; with others the hub is not used.
+			if (!Game.Online) _chrome.SetPlaces(new[] { new ShellPlace(ConquestShell.AssaultPlace, "Assault", "A"), new ShellPlace(ConquestShell.ObjectivesPlace, "Objectives", "O"), new ShellPlace(ConquestShell.VillagePlace, "Village", "V") });
 			_chrome.PlaceSelected += OnPlace;
 
 			// Everything of the game stays between the top bar and the bottom tabs.
@@ -141,6 +143,7 @@ namespace Temnorid.Conquest
 
 		void OnPlace(string id)
 		{
+			if (id == ConquestShell.VillagePlace) { if (Game != null) Game.SaveAndVillage(); return; }
 			if (_objectives == null) return;
 			var objectives = id == ConquestShell.ObjectivesPlace;
 			_objectives.SetActive(objectives);
@@ -202,8 +205,9 @@ namespace Temnorid.Conquest
 			_victory = Box("Victory", parent, new Vector2(0.26f, 0.08f), new Vector2(0.74f, 0.92f), Panel);
 			_victoryTitle = Label(_victory.transform, "Title", "VILLAGE TAKEN", 60, TextAnchor.MiddleCenter, new Vector2(0f, 0.82f), new Vector2(1f, 0.97f), Gold);
 			_victoryBody = Label(_victory.transform, "Body", "", 32, TextAnchor.UpperCenter, new Vector2(0.05f, 0.34f), new Vector2(0.95f, 0.8f), Color.white);
-			_victoryAgain = _ui.Button("Play again", _victory.transform, new Vector2(0.15f, 0.19f), new Vector2(0.85f, 0.31f), () => Game.Retry());
-			Button(_victory.transform, "Main menu", new Vector2(0.15f, 0.04f), new Vector2(0.85f, 0.16f), () => Game.SaveAndMenu());
+			_victoryAgain = _ui.Button("Play again", _victory.transform, new Vector2(0.15f, 0.235f), new Vector2(0.85f, 0.335f), () => Game.Retry());
+			_victoryVillage = _ui.Button("Return to the village", _victory.transform, new Vector2(0.15f, 0.125f), new Vector2(0.85f, 0.225f), () => Game.SaveAndVillage());
+			Button(_victory.transform, "Main menu", new Vector2(0.15f, 0.015f), new Vector2(0.85f, 0.115f), () => Game.SaveAndMenu());
 			_victory.SetActive(false);
 		}
 
@@ -212,8 +216,9 @@ namespace Temnorid.Conquest
 			_defeat = Box("Defeat", parent, new Vector2(0.3f, 0.22f), new Vector2(0.7f, 0.78f), new Color(0.1f, 0.03f, 0.03f, 0.94f));
 			Label(_defeat.transform, "Title", "YOU FELL", 64, TextAnchor.MiddleCenter, new Vector2(0f, 0.7f), new Vector2(1f, 0.95f), new Color(1f, 0.4f, 0.35f));
 			_defeatNote = Label(_defeat.transform, "Note", "The village holds. Try another way in.", 30, TextAnchor.MiddleCenter, new Vector2(0.03f, 0.52f), new Vector2(0.97f, 0.7f), Color.white, true);
-			_defeatAgain = _ui.Button("Retry", _defeat.transform, new Vector2(0.15f, 0.28f), new Vector2(0.85f, 0.46f), () => Game.Retry());
-			Button(_defeat.transform, "Main menu", new Vector2(0.15f, 0.06f), new Vector2(0.85f, 0.24f), () => Game.SaveAndMenu());
+			_defeatAgain = _ui.Button("Retry", _defeat.transform, new Vector2(0.15f, 0.37f), new Vector2(0.85f, 0.5f), () => Game.Retry());
+			_defeatVillage = _ui.Button("Return to the village", _defeat.transform, new Vector2(0.15f, 0.215f), new Vector2(0.85f, 0.345f), () => Game.SaveAndVillage());
+			Button(_defeat.transform, "Main menu", new Vector2(0.15f, 0.06f), new Vector2(0.85f, 0.19f), () => Game.SaveAndMenu());
 			_defeat.SetActive(false);
 		}
 
@@ -284,6 +289,9 @@ namespace Temnorid.Conquest
 			var waiting = Game.Online && !(Game.Net != null && Game.Net.IsHost);
 			SetAgain(_victoryAgain, waiting, "Play again");
 			SetAgain(_defeatAgain, waiting, "Retry");
+			// The home village is for playing alone; with others the hub is not used.
+			if (_victoryVillage.gameObject.activeSelf == Game.Online) _victoryVillage.gameObject.SetActive(!Game.Online);
+			if (_defeatVillage.gameObject.activeSelf == Game.Online) _defeatVillage.gameObject.SetActive(!Game.Online);
 
 			if (_objectives.activeSelf && Time.unscaledTime >= _nextObjectivesRefresh)
 			{

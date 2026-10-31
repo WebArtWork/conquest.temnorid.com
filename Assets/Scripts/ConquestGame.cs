@@ -257,6 +257,16 @@ namespace Temnorid.Conquest
 			ShellFlow.QuitToMenu();
 		}
 
+		/// <summary>Keeps the record and goes back to the home village (alone only: with others the hub is not used).</summary>
+		public void SaveAndVillage()
+		{
+			if (Online) return;
+			Save();
+			Time.timeScale = 1f;
+			EngineInput.Default.PlayerEnabled = true;
+			SceneManager.LoadScene(ConquestScenes.Village);
+		}
+
 		public void SaveAndQuit()
 		{
 			Save();

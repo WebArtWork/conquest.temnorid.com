@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Temnorid.Conquest
 {
@@ -9,13 +10,18 @@ namespace Temnorid.Conquest
 	[RequireComponent(typeof(BoxCollider))]
 	public sealed class MarchGate : MonoBehaviour
 	{
-		public static MarchGate Create(Transform parent, Vector3 position, Material template = null)
+		/// <summary>The scene the hero goes to on walking through.</summary>
+		public string Scene = ConquestScenes.Neighbour;
+
+		bool _used;
+
+		public static MarchGate Create(Transform parent, Vector3 position, Material template = null, string scene = null, Color? banner = null)
 		{
 			var root = new GameObject("MarchGate");
 			root.transform.SetParent(parent, false);
 			root.transform.localPosition = position;
 			var wood = MakeMaterial(template, new Color(0.45f, 0.3f, 0.18f));
-			var red = MakeMaterial(template, new Color(0.75f, 0.12f, 0.12f));
+			var red = MakeMaterial(template, banner ?? new Color(0.75f, 0.12f, 0.12f));
 			Part(root.transform, "PostL", new Vector3(-3.5f, 3f, 0f), new Vector3(1f, 6f, 1f), wood);
 			Part(root.transform, "PostR", new Vector3(3.5f, 3f, 0f), new Vector3(1f, 6f, 1f), wood);
 			Part(root.transform, "Banner", new Vector3(0f, 5.2f, 0f), new Vector3(8f, 1.6f, 0.2f), red);
@@ -25,7 +31,9 @@ namespace Temnorid.Conquest
 			box.isTrigger = true;
 			box.center = new Vector3(0f, 1.5f, 0f);
 			box.size = new Vector3(6f, 3f, 2.5f);
-			return root.AddComponent<MarchGate>();
+			var gate = root.AddComponent<MarchGate>();
+			if (!string.IsNullOrEmpty(scene)) gate.Scene = scene;
+			return gate;
 		}
 
 		static Material MakeMaterial(Material template, Color colour)
@@ -50,8 +58,10 @@ namespace Temnorid.Conquest
 
 		void OnTriggerEnter(Collider other)
 		{
-			if (other.GetComponentInParent<HubHero>() == null) return;
-			VillageGame.Instance?.MarchOut();
+			if (_used || other.GetComponentInParent<HubHero>() == null) return;
+			_used = true;
+			Time.timeScale = 1f;
+			SceneManager.LoadScene(Scene);
 		}
 	}
 

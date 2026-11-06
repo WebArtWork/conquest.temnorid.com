@@ -28,6 +28,7 @@ namespace Temnorid.Conquest.EditorTools
 	{
 		const string ScenePath = "Assets/Scenes/Main.unity";
 		const string VillageScenePath = "Assets/Scenes/Village.unity";
+		const string NeighbourScenePath = "Assets/Scenes/Neighbour.unity";
 		public const string Version = "0.3.0";
 		const string MaterialDir = "Assets/Materials";
 
@@ -68,9 +69,10 @@ namespace Temnorid.Conquest.EditorTools
 
 			EditorSceneManager.SaveScene(scene, ScenePath);
 			BuildVillageScene();
+			BuildNeighbourScene();
 			ShellSceneKit.BuildBoot();
 			ShellSceneKit.BuildMenu();
-			ShellSceneKit.SetBuildOrder(VillageScenePath, ScenePath); // Boot, Menu, the home village, then the assault
+			ShellSceneKit.SetBuildOrder(VillageScenePath, NeighbourScenePath, ScenePath); // Boot, Menu, the home village, the neighbouring village, then the assault
 			AssetDatabase.SaveAssets();
 			Debug.Log("[Conquest] Scene built: " + ScenePath + " (" + soldiers.Length + " defenders)");
 		}
@@ -110,6 +112,39 @@ namespace Temnorid.Conquest.EditorTools
 
 			EditorSceneManager.SaveScene(scene, VillageScenePath);
 			Debug.Log("[Conquest] Scene built: " + VillageScenePath);
+		}
+
+		/// <summary>
+		/// <c>Assets/Scenes/Neighbour.unity</c>: the neighbouring village, outside the area of the home one. Like the home scene it holds only the
+		/// village view, a wide ground, the hero and the camera; <see cref="NeighbourGame"/> draws the village and shuts its gates when it starts.
+		/// </summary>
+		static void BuildNeighbourScene()
+		{
+			var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+			RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+			RenderSettings.ambientLight = new Color(0.62f, 0.66f, 0.74f);
+
+			var world = new GameObject("World").transform;
+			Prim(PrimitiveType.Cube, "SafetyGround", world, new Vector3(0f, -0.8f, 0f), new Vector3(900f, 1f, 900f), Mat("Grass", new Color(0.33f, 0.55f, 0.28f)), true);
+
+			var view = new GameObject("Village").AddComponent<VillageView>();
+			view.LitTemplate = Mat("VillageLit", Color.white);
+			view.TextMaterial = GrayboxBuilder.WorldTextMaterial(Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"), MaterialDir);
+
+			var hero = BuildPlayer();
+			hero.name = "Hero";
+			Object.DestroyImmediate(hero.GetComponent<PlayerLord>());
+			Object.DestroyImmediate(hero.GetComponent<AiTarget>());
+			Object.DestroyImmediate(hero.GetComponent<Health>());
+			hero.AddComponent<HubHero>();
+			BuildCameraAndLight(hero.GetComponent<CharacterMotor>());
+
+			var game = new GameObject("Game").AddComponent<NeighbourGame>();
+			game.View = view;
+			game.Hero = hero.GetComponent<CharacterMotor>();
+
+			EditorSceneManager.SaveScene(scene, NeighbourScenePath);
+			Debug.Log("[Conquest] Scene built: " + NeighbourScenePath);
 		}
 
 		// ---- the village ----

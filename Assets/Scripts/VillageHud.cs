@@ -41,12 +41,7 @@ namespace Temnorid.Conquest
 			UiBuilder.EnsureEventSystem(transform);
 
 			_chrome = ShellChrome.Create(transform);
-			_chrome.SetPlaces(new[]
-			{
-				new ShellPlace(VillagePlace, "Village", "V"),
-				new ShellPlace(AssaultPlace, "Assault", "A"),
-			});
-			_chrome.PlaceSelected += OnPlace;
+			_chrome.SetTitle("Village");
 
 			var canvas = UiBuilder.CreateCanvas(transform, "HudCanvas");
 			canvas.sortingOrder = 0;
@@ -69,8 +64,7 @@ namespace Temnorid.Conquest
 
 			_heading = _ui.Label("Heading", root, "", 28, TextAnchor.UpperCenter, new Vector2(0.32f, 0.9f), new Vector2(0.98f, 0.99f), new Color(1f, 0.95f, 0.7f), true);
 			_loading = _ui.Label("Loading", root, "", 48, TextAnchor.MiddleCenter, new Vector2(0.25f, 0.42f), new Vector2(0.75f, 0.58f), Color.white);
-			_hint = _ui.Label("Hint", root, TouchButton.IsNeeded ? "" : "WASD move  ·  Shift run  ·  Space jump  ·  V camera  ·  Esc frees the mouse  ·  walk through the red gate to march out", 26, TextAnchor.LowerLeft, new Vector2(0.015f, 0.01f), new Vector2(0.7f, 0.07f), new Color(1f, 1f, 1f, 0.7f));
-			_ui.Button("March out", root, new Vector2(0.72f, 0.02f), new Vector2(0.985f, 0.14f), () => Game.MarchOut());
+			_hint = _ui.Label("Hint", root, TouchButton.IsNeeded ? "" : "WASD move  ·  Shift run  ·  Space jump  ·  V camera  ·  Esc frees the mouse  ·  walk out through the red gate to leave the village", 26, TextAnchor.LowerLeft, new Vector2(0.015f, 0.01f), new Vector2(0.7f, 0.07f), new Color(1f, 1f, 1f, 0.7f));
 		}
 
 		void BuildTouchControls()
@@ -117,7 +111,7 @@ namespace Temnorid.Conquest
 			if (Game == null || _stock == null) return;
 
 			SetText(_loading, Game.Loading ? "Loading your village…" : "");
-			if (_chrome != null) _chrome.SetStatus(Game.Village != null ? Game.Village.Title : "Loading");
+			if (_chrome != null) _chrome.SetTitle(Game.Village != null ? Game.Village.Title : "Village");
 			SetText(_heading, VillageText.Heading(Game.Village));
 			var stock = _shownStock;
 			if (Time.unscaledTime >= _nextStock || _shownStock.Length == 0)

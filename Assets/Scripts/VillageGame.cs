@@ -17,6 +17,8 @@ namespace Temnorid.Conquest
 	{
 		public const string Village = "Village";
 		public const string Assault = "Main";
+		/// <summary>The neighbouring village outside the home village's area: like ours, with its gate closed.</summary>
+		public const string Neighbour = "Neighbour";
 	}
 
 	/// <summary>Plain text for the hub, with no Unity in it so it can be tested.</summary>
@@ -156,7 +158,7 @@ namespace Temnorid.Conquest
 			if (View == null) View = new GameObject("Village").AddComponent<VillageView>();
 			View.Build(session.Data);
 
-			if (Gate == null) Gate = MarchGate.Create(View.transform, GatePosition(session.Data), View.LitTemplate);
+			if (Gate == null) Gate = MarchGate.Create(View.transform, GatePosition(session.Data), View.LitTemplate, ConquestScenes.Neighbour);
 			if (_started) PlaceHero();
 			Debug.Log("[Conquest] " + (session.IsLords ? "Showing the player's Lords village." : "Showing the standard village."));
 			VillageReady?.Invoke();
@@ -169,7 +171,7 @@ namespace Temnorid.Conquest
 		public void MarchOut()
 		{
 			Time.timeScale = 1f;
-			SceneManager.LoadScene(ConquestScenes.Assault);
+			SceneManager.LoadScene(ConquestScenes.Neighbour);
 		}
 	}
 }

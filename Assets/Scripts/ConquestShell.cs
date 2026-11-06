@@ -23,16 +23,13 @@ namespace Temnorid.Conquest
 				Repo = Repo,
 				InstallerSuffix = "-Setup.exe",
 				MaxPlayers = 4,
-				Multiplayer = true,
-				// Playing alone starts in the player's home village; the assault scene (Main) follows from there. The online lobby
-				// also starts GameScene, so VillageGame sends anybody who arrives there online straight on to Main.
+				// One player: sign in, then straight into the home village. Leaving the village area leads to the neighbouring village.
+				// No landing screen, no lobby, no Profile for now.
+				Multiplayer = false,
+				Profile = false,
+				SkipLanding = true,
 				GameScene = ConquestScenes.Village,
 				Accent = new Color(0.86f, 0.3f, 0.25f),
-				Places =
-				{
-					new ShellPlace(AssaultPlace, "Assault", "A"),
-					new ShellPlace(ObjectivesPlace, "Objectives", "O"),
-				},
 			};
 		}
 	}
